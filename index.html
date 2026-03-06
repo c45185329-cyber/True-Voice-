@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resonance — Voice Notes</title>
+  <meta name="theme-color" content="#0a0a0f" />
+  <title>True Voice — Voice Notes</title>
+  <link rel="manifest" href="manifest.json" />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -30,18 +32,15 @@
       overflow-x: hidden;
     }
 
-    /* Ambient background */
     body::before {
       content: '';
       position: fixed;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: 
-        radial-gradient(ellipse 40% 30% at 20% 20%, rgba(200, 255, 87, 0.04) 0%, transparent 60%),
-        radial-gradient(ellipse 30% 40% at 80% 70%, rgba(87, 200, 255, 0.04) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 30% at 50% 50%, rgba(192, 132, 252, 0.02) 0%, transparent 70%);
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background:
+        radial-gradient(ellipse 40% 30% at 20% 20%, rgba(200,255,87,0.04) 0%, transparent 60%),
+        radial-gradient(ellipse 30% 40% at 80% 70%, rgba(87,200,255,0.04) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 30% at 50% 50%, rgba(192,132,252,0.02) 0%, transparent 70%);
       pointer-events: none;
       z-index: 0;
     }
@@ -54,7 +53,6 @@
       padding: 24px 16px 120px;
     }
 
-    /* Header */
     .header {
       display: flex;
       align-items: center;
@@ -67,12 +65,9 @@
       font-family: 'Instrument Serif', serif;
       font-size: 26px;
       letter-spacing: -0.5px;
-      color: var(--text);
     }
 
-    .logo span {
-      color: var(--accent);
-    }
+    .logo span { color: var(--accent); }
 
     .tier-badge {
       font-size: 10px;
@@ -92,18 +87,51 @@
     }
 
     .tier-badge.pro {
-      background: rgba(255, 215, 0, 0.1);
+      background: rgba(255,215,0,0.1);
       color: var(--pro);
-      border: 1px solid rgba(255, 215, 0, 0.3);
+      border: 1px solid rgba(255,215,0,0.3);
     }
 
     .tier-badge.premium {
-      background: rgba(192, 132, 252, 0.1);
+      background: rgba(192,132,252,0.1);
       color: var(--premium);
-      border: 1px solid rgba(192, 132, 252, 0.3);
+      border: 1px solid rgba(192,132,252,0.3);
     }
 
-    /* Waveform visualizer */
+    /* Status bar */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 24px;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+
+    .status-dot.online { background: var(--accent); }
+    .status-dot.checking { background: var(--pro); animation: pulse 1s infinite; }
+    .status-dot.offline { background: var(--accent3); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* Visualizer */
     .visualizer-container {
       position: relative;
       height: 100px;
@@ -122,15 +150,16 @@
       min-height: 4px;
     }
 
-    .wave-bar.active {
-      background: var(--accent);
+    .wave-bar.active { background: var(--accent); }
+    .wave-bar.playing { background: var(--accent2); }
+    .wave-bar.processing { background: var(--premium); animation: processingPulse 0.8s infinite alternate; }
+
+    @keyframes processingPulse {
+      from { opacity: 0.4; }
+      to { opacity: 1; }
     }
 
-    .wave-bar.playing {
-      background: var(--accent2);
-    }
-
-    /* Main record button */
+    /* Record zone */
     .record-zone {
       display: flex;
       flex-direction: column;
@@ -175,7 +204,7 @@
 
     .record-btn.recording::before {
       border-color: var(--accent3);
-      box-shadow: 0 0 0 8px rgba(255, 107, 87, 0.1), 0 0 0 16px rgba(255, 107, 87, 0.05);
+      box-shadow: 0 0 0 8px rgba(255,107,87,0.1), 0 0 0 16px rgba(255,107,87,0.05);
     }
 
     .record-btn.recording::after {
@@ -184,7 +213,26 @@
       height: 22px;
     }
 
+    .record-btn.processing-btn::before {
+      border-color: var(--premium);
+      box-shadow: 0 0 0 8px rgba(192,132,252,0.1);
+    }
+
+    .record-btn.processing-btn::after {
+      background: var(--premium);
+      border-radius: 4px;
+      width: 18px;
+      height: 18px;
+      animation: spin 1.5s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
     .record-btn:active { transform: scale(0.95); }
+    .record-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .record-label {
       font-size: 11px;
@@ -201,7 +249,7 @@
       font-variant-numeric: tabular-nums;
     }
 
-    /* Processing toggle */
+    /* Processing panel */
     .processing-panel {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -228,21 +276,9 @@
 
     .toggle-row:last-child { border-bottom: none; }
 
-    .toggle-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .toggle-name {
-      font-size: 13px;
-      color: var(--text);
-    }
-
-    .toggle-desc {
-      font-size: 10px;
-      color: var(--muted);
-    }
+    .toggle-info { display: flex; flex-direction: column; gap: 2px; }
+    .toggle-name { font-size: 13px; color: var(--text); }
+    .toggle-desc { font-size: 10px; color: var(--muted); }
 
     .toggle-right {
       display: flex;
@@ -255,21 +291,21 @@
       padding: 2px 6px;
       border-radius: 4px;
       letter-spacing: 1px;
+      cursor: pointer;
     }
 
     .lock-badge.pro-lock {
-      background: rgba(255, 215, 0, 0.1);
+      background: rgba(255,215,0,0.1);
       color: var(--pro);
-      border: 1px solid rgba(255, 215, 0, 0.2);
+      border: 1px solid rgba(255,215,0,0.2);
     }
 
     .lock-badge.premium-lock {
-      background: rgba(192, 132, 252, 0.1);
+      background: rgba(192,132,252,0.1);
       color: var(--premium);
-      border: 1px solid rgba(192, 132, 252, 0.2);
+      border: 1px solid rgba(192,132,252,0.2);
     }
 
-    /* Toggle switch */
     .toggle {
       position: relative;
       width: 40px;
@@ -300,18 +336,11 @@
       transition: 0.2s;
     }
 
-    input:checked + .slider { background: rgba(200, 255, 87, 0.2); }
-    input:checked + .slider::before {
-      background: var(--accent);
-      transform: translateX(18px);
-    }
-
+    input:checked + .slider { background: rgba(200,255,87,0.2); }
+    input:checked + .slider::before { background: var(--accent); transform: translateX(18px); }
     input:disabled + .slider { opacity: 0.4; cursor: not-allowed; }
 
-    /* Intensity slider */
-    .intensity-row {
-      padding: 12px 0 4px;
-    }
+    .intensity-row { padding: 12px 0 4px; }
 
     .intensity-label {
       display: flex;
@@ -323,9 +352,7 @@
       margin-bottom: 8px;
     }
 
-    .intensity-value {
-      color: var(--accent);
-    }
+    .intensity-value { color: var(--accent); }
 
     input[type="range"] {
       -webkit-appearance: none;
@@ -343,10 +370,10 @@
       border-radius: 50%;
       background: var(--accent);
       cursor: pointer;
-      box-shadow: 0 0 0 3px rgba(200, 255, 87, 0.15);
+      box-shadow: 0 0 0 3px rgba(200,255,87,0.15);
     }
 
-    /* Recordings list */
+    /* Recordings */
     .recordings-header {
       display: flex;
       align-items: center;
@@ -369,11 +396,7 @@
       border-radius: 10px;
     }
 
-    .recordings-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    .recordings-list { display: flex; flex-direction: column; gap: 10px; }
 
     .recording-card {
       background: var(--surface);
@@ -413,21 +436,10 @@
       font-size: 12px;
     }
 
-    .play-btn:hover {
-      border-color: var(--accent2);
-      color: var(--accent2);
-    }
+    .play-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+    .play-btn.playing { border-color: var(--accent2); background: rgba(87,200,255,0.1); color: var(--accent2); }
 
-    .play-btn.playing {
-      border-color: var(--accent2);
-      background: rgba(87, 200, 255, 0.1);
-      color: var(--accent2);
-    }
-
-    .recording-info {
-      flex: 1;
-      min-width: 0;
-    }
+    .recording-info { flex: 1; min-width: 0; }
 
     .recording-name {
       font-size: 13px;
@@ -443,11 +455,11 @@
       color: var(--muted);
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
-    .processed-tag {
-      color: var(--accent);
-    }
+    .processed-tag { color: var(--accent); }
+    .ai-tag { color: var(--premium); }
 
     .delete-btn {
       background: none;
@@ -471,6 +483,35 @@
       line-height: 2;
       letter-spacing: 0.5px;
     }
+
+    /* Limit bar */
+    .limit-bar-container { margin-bottom: 24px; }
+
+    .limit-bar-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .limit-bar-track {
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .limit-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--accent);
+      transition: width 0.4s ease;
+    }
+
+    .limit-bar-fill.warning { background: var(--accent3); }
 
     /* Upgrade modal */
     .modal-overlay {
@@ -525,12 +566,9 @@
       position: relative;
     }
 
-    .plan-card:hover { border-color: var(--accent); }
-
-    .plan-card.selected-plan { border-color: var(--accent); background: rgba(200, 255, 87, 0.04); }
-
-    .plan-card.pro-plan:hover, .plan-card.pro-plan.selected-plan { border-color: var(--pro); background: rgba(255, 215, 0, 0.04); }
-    .plan-card.premium-plan:hover, .plan-card.premium-plan.selected-plan { border-color: var(--premium); background: rgba(192, 132, 252, 0.04); }
+    .plan-card.selected-plan { border-color: var(--accent); background: rgba(200,255,87,0.04); }
+    .plan-card.pro-plan.selected-plan { border-color: var(--pro); background: rgba(255,215,0,0.04); }
+    .plan-card.premium-plan.selected-plan { border-color: var(--premium); background: rgba(192,132,252,0.04); }
 
     .plan-header {
       display: flex;
@@ -539,20 +577,10 @@
       margin-bottom: 8px;
     }
 
-    .plan-name {
-      font-size: 14px;
-      font-weight: 500;
-    }
+    .plan-name { font-size: 14px; font-weight: 500; }
 
-    .plan-price {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .plan-price strong {
-      font-size: 18px;
-      color: var(--text);
-    }
+    .plan-price { font-size: 13px; color: var(--muted); }
+    .plan-price strong { font-size: 18px; color: var(--text); }
 
     .plan-features {
       font-size: 10px;
@@ -630,62 +658,34 @@
     }
 
     .toast.show { transform: translateX(-50%) translateY(0); }
-
-    /* Limit bar */
-    .limit-bar-container {
-      margin-bottom: 24px;
-    }
-
-    .limit-bar-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .limit-bar-track {
-      height: 3px;
-      background: var(--border);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    .limit-bar-fill {
-      height: 100%;
-      border-radius: 2px;
-      background: var(--accent);
-      transition: width 0.4s ease;
-    }
-
-    .limit-bar-fill.warning { background: var(--accent3); }
   </style>
 </head>
 <body>
 
 <div class="app">
 
-  <!-- Header -->
   <div class="header">
-    <div class="logo">Re<span>so</span>nance</div>
+    <div class="logo">True<span>Voice</span></div>
     <div class="tier-badge free" id="tierBadge" onclick="openModal()">FREE PLAN</div>
   </div>
 
-  <!-- Waveform Visualizer -->
-  <div class="visualizer-container" id="visualizer">
-    <!-- JS populates bars -->
+  <!-- Backend status -->
+  <div class="status-bar">
+    <div class="status-dot checking" id="statusDot"></div>
+    <span id="statusText">Connecting to voice server...</span>
   </div>
 
-  <!-- Record Zone -->
+  <!-- Waveform -->
+  <div class="visualizer-container" id="visualizer"></div>
+
+  <!-- Record zone -->
   <div class="record-zone">
     <button class="record-btn" id="recordBtn" onclick="toggleRecord()"></button>
     <div class="timer" id="timer"></div>
     <div class="record-label" id="recordLabel">tap to record</div>
   </div>
 
-  <!-- Storage limit bar (free tier) -->
+  <!-- Limit bar -->
   <div class="limit-bar-container" id="limitBar">
     <div class="limit-bar-header">
       <span>Monthly recordings</span>
@@ -696,14 +696,14 @@
     </div>
   </div>
 
-  <!-- Processing Panel -->
+  <!-- Processing panel -->
   <div class="processing-panel">
     <div class="panel-title">Voice Processing</div>
 
     <div class="toggle-row">
       <div class="toggle-info">
         <div class="toggle-name">Bone-conduction correction</div>
-        <div class="toggle-desc">Adds warmth — makes recordings sound like you</div>
+        <div class="toggle-desc">Makes recordings sound like you hear yourself</div>
       </div>
       <label class="toggle">
         <input type="checkbox" id="toggleCore" checked />
@@ -726,9 +726,9 @@
         <div class="toggle-desc">Remove background hiss and room noise</div>
       </div>
       <div class="toggle-right">
-        <span class="lock-badge pro-lock">PRO</span>
+        <span class="lock-badge pro-lock" onclick="openModal()">PRO</span>
         <label class="toggle">
-          <input type="checkbox" id="toggleNoise" disabled onclick="openModal()" />
+          <input type="checkbox" id="toggleNoise" disabled />
           <span class="slider"></span>
         </label>
       </div>
@@ -736,13 +736,13 @@
 
     <div class="toggle-row">
       <div class="toggle-info">
-        <div class="toggle-name">Voice profile matching</div>
-        <div class="toggle-desc">AI-calibrated to your unique voice</div>
+        <div class="toggle-name">AI voice enhancement</div>
+        <div class="toggle-desc">DeepFilterNet — processed server-side</div>
       </div>
       <div class="toggle-right">
-        <span class="lock-badge premium-lock">PREMIUM</span>
+        <span class="lock-badge premium-lock" onclick="openModal()">PREMIUM</span>
         <label class="toggle">
-          <input type="checkbox" id="toggleAI" disabled onclick="openModal()" />
+          <input type="checkbox" id="toggleAI" disabled />
           <span class="slider"></span>
         </label>
       </div>
@@ -751,68 +751,59 @@
     <div class="toggle-row">
       <div class="toggle-info">
         <div class="toggle-name">Auto transcription</div>
-        <div class="toggle-desc">Convert voice notes to text automatically</div>
+        <div class="toggle-desc">Convert voice notes to text</div>
       </div>
       <div class="toggle-right">
-        <span class="lock-badge premium-lock">PREMIUM</span>
+        <span class="lock-badge premium-lock" onclick="openModal()">PREMIUM</span>
         <label class="toggle">
-          <input type="checkbox" id="toggleTranscribe" disabled onclick="openModal()" />
+          <input type="checkbox" id="toggleTranscribe" disabled />
           <span class="slider"></span>
         </label>
       </div>
     </div>
   </div>
 
-  <!-- Recordings List -->
+  <!-- Recordings -->
   <div class="recordings-header">
     <div class="section-title">Your recordings</div>
     <div class="count-badge" id="countBadge">0 notes</div>
   </div>
 
   <div class="recordings-list" id="recordingsList">
-    <div class="empty-state">
-      No recordings yet.<br/>
-      Tap the button above to start.
-    </div>
+    <div class="empty-state">No recordings yet.<br/>Tap the button above to start.</div>
   </div>
 
 </div>
 
-<!-- Upgrade Modal -->
+<!-- Upgrade modal -->
 <div class="modal-overlay" id="upgradeModal" onclick="closeModalOutside(event)">
   <div class="modal">
-    <div class="modal-title">Upgrade Resonance</div>
-    <div class="modal-sub">Unlock advanced voice processing, unlimited recordings, and AI-powered features.</div>
+    <div class="modal-title">Upgrade True Voice</div>
+    <div class="modal-sub">Unlock AI-powered voice processing, unlimited recordings, and more.</div>
 
     <div class="plan-card" id="planFree" onclick="selectPlan('free')">
       <div class="plan-header">
         <div class="plan-name">Free</div>
         <div class="plan-price"><strong>$0</strong> / mo</div>
       </div>
-      <div class="plan-features">
-        10 recordings / month · 2 min max · Basic correction
-      </div>
+      <div class="plan-features">10 recordings / month · 2 min max · Basic correction</div>
     </div>
 
     <div class="plan-card pro-plan" id="planPro" onclick="selectPlan('pro')">
       <div class="popular-badge">POPULAR</div>
       <div class="plan-header">
-        <div class="plan-name" style="color: var(--pro)">Pro</div>
+        <div class="plan-name" style="color:var(--pro)">Pro</div>
         <div class="plan-price"><strong>$2.99</strong> / mo</div>
       </div>
-      <div class="plan-features">
-        Unlimited recordings · 15 min max · Noise reduction · Export MP3/WAV · Cloud backup
-      </div>
+      <div class="plan-features">Unlimited recordings · 15 min max · Noise reduction · Export MP3/WAV · Cloud backup</div>
     </div>
 
     <div class="plan-card premium-plan" id="planPremium" onclick="selectPlan('premium')">
       <div class="plan-header">
-        <div class="plan-name" style="color: var(--premium)">Premium</div>
+        <div class="plan-name" style="color:var(--premium)">Premium</div>
         <div class="plan-price"><strong>$7.99</strong> / mo</div>
       </div>
-      <div class="plan-features">
-        Everything in Pro · AI voice profile · Auto-transcription · Priority processing · API access
-      </div>
+      <div class="plan-features">Everything in Pro · DeepFilterNet AI · Auto-transcription · Priority processing</div>
     </div>
 
     <div class="modal-actions">
@@ -822,14 +813,17 @@
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-  // ─── State ───────────────────────────────────────────────────────────────
+  // ─── Config ───────────────────────────────────────────────
+  const API_URL = 'http://3.25.160.183:5000';
+
+  // ─── State ────────────────────────────────────────────────
   const state = {
-    tier: 'free',    // 'free' | 'pro' | 'premium'
+    tier: 'free',
     isRecording: false,
+    isProcessing: false,
     recordings: [],
     selectedPlan: 'pro',
     mediaRecorder: null,
@@ -840,6 +834,8 @@
     seconds: 0,
     playingId: null,
     currentAudio: null,
+    backendOnline: false,
+    userId: 'user_' + Math.random().toString(36).substr(2, 9),
   };
 
   const LIMITS = {
@@ -848,7 +844,7 @@
     premium: { maxRecordings: Infinity, maxSeconds: Infinity },
   };
 
-  // ─── Waveform init ───────────────────────────────────────────────────────
+  // ─── Waveform ─────────────────────────────────────────────
   const NUM_BARS = 52;
   const viz = document.getElementById('visualizer');
   const bars = [];
@@ -874,112 +870,37 @@
       const val = 4 + Math.sin(t * 1.5 + i * 0.25) * 6 + Math.sin(t * 0.8 + i * 0.4) * 4;
       bar.style.height = val + 'px';
     });
-    if (!state.isRecording) requestAnimationFrame(idleBars);
+    if (!state.isRecording && !state.isProcessing) requestAnimationFrame(idleBars);
   }
   idleBars();
 
-  // ─── Audio Processing ────────────────────────────────────────────────────
-  function buildProcessingChain(audioBuffer) {
-    const offlineCtx = new OfflineAudioContext(
-      audioBuffer.numberOfChannels,
-      audioBuffer.length,
-      audioBuffer.sampleRate
-    );
-
-    const source = offlineCtx.createBufferSource();
-    source.buffer = audioBuffer;
-
-    const intensity = parseInt(document.getElementById('intensitySlider').value) / 100;
-    const enabled = document.getElementById('toggleCore').checked;
-
-    if (enabled && intensity > 0) {
-      // Low-mid boost: adds the bone-conduction warmth
-      const lowBoost = offlineCtx.createBiquadFilter();
-      lowBoost.type = 'peaking';
-      lowBoost.frequency.value = 180;
-      lowBoost.Q.value = 0.8;
-      lowBoost.gain.value = 8 * intensity;
-
-      // Sub-bass warmth
-      const subBoost = offlineCtx.createBiquadFilter();
-      subBoost.type = 'lowshelf';
-      subBoost.frequency.value = 90;
-      subBoost.gain.value = 5 * intensity;
-
-      // Reduce harshness in upper mids
-      const midCut = offlineCtx.createBiquadFilter();
-      midCut.type = 'peaking';
-      midCut.frequency.value = 2800;
-      midCut.Q.value = 1.2;
-      midCut.gain.value = -4 * intensity;
-
-      // Gentle high shelf rolloff
-      const highRoll = offlineCtx.createBiquadFilter();
-      highRoll.type = 'highshelf';
-      highRoll.frequency.value = 6000;
-      highRoll.gain.value = -3 * intensity;
-
-      // Gain to compensate
-      const gainNode = offlineCtx.createGain();
-      gainNode.gain.value = 1 + (0.3 * intensity);
-
-      source.connect(lowBoost);
-      lowBoost.connect(subBoost);
-      subBoost.connect(midCut);
-      midCut.connect(highRoll);
-      highRoll.connect(gainNode);
-      gainNode.connect(offlineCtx.destination);
-    } else {
-      source.connect(offlineCtx.destination);
+  // ─── Backend health check ─────────────────────────────────
+  async function checkBackend() {
+    const dot = document.getElementById('statusDot');
+    const txt = document.getElementById('statusText');
+    try {
+      const res = await fetch(`${API_URL}/health`, { signal: AbortSignal.timeout(5000) });
+      const data = await res.json();
+      state.backendOnline = true;
+      dot.className = 'status-dot online';
+      txt.textContent = data.ai_available
+        ? 'Server online — AI processing available'
+        : 'Server online — filter processing active';
+    } catch {
+      state.backendOnline = false;
+      dot.className = 'status-dot offline';
+      txt.textContent = 'Server offline — check EC2 instance';
     }
-
-    source.start(0);
-    return offlineCtx.startRendering();
   }
 
-  function audioBufferToWav(buffer) {
-    const numChannels = buffer.numberOfChannels;
-    const sampleRate = buffer.sampleRate;
-    const length = buffer.length * numChannels * 2;
-    const arrayBuffer = new ArrayBuffer(44 + length);
-    const view = new DataView(arrayBuffer);
+  checkBackend();
+  setInterval(checkBackend, 30000);
 
-    function writeStr(offset, str) {
-      for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
-    }
-
-    writeStr(0, 'RIFF');
-    view.setUint32(4, 36 + length, true);
-    writeStr(8, 'WAVE');
-    writeStr(12, 'fmt ');
-    view.setUint32(16, 16, true);
-    view.setUint16(20, 1, true);
-    view.setUint16(22, numChannels, true);
-    view.setUint32(24, sampleRate, true);
-    view.setUint32(28, sampleRate * numChannels * 2, true);
-    view.setUint16(32, numChannels * 2, true);
-    view.setUint16(34, 16, true);
-    writeStr(36, 'data');
-    view.setUint32(40, length, true);
-
-    let offset = 44;
-    for (let i = 0; i < buffer.length; i++) {
-      for (let ch = 0; ch < numChannels; ch++) {
-        const sample = Math.max(-1, Math.min(1, buffer.getChannelData(ch)[i]));
-        view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
-        offset += 2;
-      }
-    }
-    return arrayBuffer;
-  }
-
-  // ─── Recording ───────────────────────────────────────────────────────────
+  // ─── Recording ────────────────────────────────────────────
   async function toggleRecord() {
-    if (state.isRecording) {
-      stopRecording();
-    } else {
-      await startRecording();
-    }
+    if (state.isProcessing) return;
+    if (state.isRecording) stopRecording();
+    else await startRecording();
   }
 
   async function startRecording() {
@@ -987,6 +908,11 @@
     if (state.recordings.length >= limit.maxRecordings) {
       showToast('Recording limit reached — upgrade to continue');
       openModal();
+      return;
+    }
+
+    if (!state.backendOnline) {
+      showToast('Server offline — cannot record right now');
       return;
     }
 
@@ -998,14 +924,14 @@
       const source = state.audioContext.createMediaStreamSource(stream);
       source.connect(state.analyser);
 
-      state.mediaRecorder = new MediaRecorder(stream);
+      state.mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
       state.audioChunks = [];
 
       state.mediaRecorder.ondataavailable = e => {
         if (e.data.size > 0) state.audioChunks.push(e.data);
       };
 
-      state.mediaRecorder.onstop = processRecording;
+      state.mediaRecorder.onstop = sendToBackend;
       state.mediaRecorder.start(100);
 
       state.isRecording = true;
@@ -1015,20 +941,17 @@
       document.getElementById('recordLabel').textContent = 'tap to stop';
       bars.forEach(b => b.classList.add('active'));
 
-      // Timer
       state.timerInterval = setInterval(() => {
         state.seconds++;
         const m = String(Math.floor(state.seconds / 60)).padStart(2, '0');
         const s = String(state.seconds % 60).padStart(2, '0');
         document.getElementById('timer').textContent = m + ':' + s;
-
         if (state.seconds >= limit.maxSeconds) {
           showToast('Max recording length reached');
           stopRecording();
         }
       }, 1000);
 
-      // Live visualizer
       const vizData = new Uint8Array(state.analyser.frequencyBinCount);
       function liveViz() {
         if (!state.isRecording) return;
@@ -1051,54 +974,82 @@
     state.mediaRecorder?.stream.getTracks().forEach(t => t.stop());
 
     document.getElementById('recordBtn').classList.remove('recording');
-    document.getElementById('recordLabel').textContent = 'tap to record';
+    document.getElementById('recordBtn').classList.add('processing-btn');
+    document.getElementById('recordBtn').disabled = true;
+    document.getElementById('recordLabel').textContent = 'processing...';
     document.getElementById('timer').textContent = '';
-    bars.forEach(b => b.classList.remove('active'));
+    bars.forEach(b => { b.classList.remove('active'); b.classList.add('processing'); });
+
+    state.isProcessing = true;
+  }
+
+  // ─── Send to EC2 backend ──────────────────────────────────
+  async function sendToBackend() {
+    if (state.audioChunks.length === 0) {
+      resetRecordUI();
+      return;
+    }
+
+    const blob = new Blob(state.audioChunks, { type: 'audio/webm' });
+    const formData = new FormData();
+    formData.append('audio', blob, 'recording.wav');
+    formData.append('intensity', document.getElementById('intensitySlider').value / 100);
+    formData.append('tier', state.tier);
+    formData.append('user_id', state.userId);
+
+    showToast('Sending to voice server...');
+
+    try {
+      const response = await fetch(`${API_URL}/process`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+      const data = await response.json();
+
+      // Get duration from blob
+      const audioEl = new Audio(URL.createObjectURL(blob));
+      await new Promise(r => { audioEl.onloadedmetadata = r; audioEl.onerror = r; });
+      const duration = Math.round(audioEl.duration) || state.seconds;
+      const m = String(Math.floor(duration / 60)).padStart(2, '0');
+      const s = String(duration % 60).padStart(2, '0');
+
+      const rec = {
+        id: Date.now(),
+        name: 'Note ' + (state.recordings.length + 1),
+        duration: m + ':' + s,
+        url: data.url,
+        s3key: data.key,
+        processed: true,
+        aiProcessed: data.ai_processed || false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+
+      state.recordings.unshift(rec);
+      renderRecordings();
+      updateLimitBar();
+      showToast(data.ai_processed ? '✦ AI processing complete' : 'Recording saved');
+
+    } catch (err) {
+      showToast('Processing failed: ' + err.message);
+    } finally {
+      resetRecordUI();
+    }
+  }
+
+  function resetRecordUI() {
+    state.isProcessing = false;
+    const btn = document.getElementById('recordBtn');
+    btn.classList.remove('processing-btn');
+    btn.disabled = false;
+    document.getElementById('recordLabel').textContent = 'tap to record';
+    bars.forEach(b => b.classList.remove('processing', 'active'));
     idleBars();
   }
 
-  async function processRecording() {
-    if (state.audioChunks.length === 0) return;
-
-    showToast('Processing voice...');
-    const blob = new Blob(state.audioChunks, { type: 'audio/webm' });
-    const arrayBuffer = await blob.arrayBuffer();
-    const audioContext = new AudioContext();
-
-    let processedBuffer;
-    try {
-      const decoded = await audioContext.decodeAudioData(arrayBuffer);
-      processedBuffer = await buildProcessingChain(decoded);
-    } catch (e) {
-      showToast('Processing failed — saving raw audio');
-      const decoded = await audioContext.decodeAudioData(arrayBuffer.slice(0));
-      processedBuffer = decoded;
-    }
-
-    const wavBuffer = audioBufferToWav(processedBuffer);
-    const processedBlob = new Blob([wavBuffer], { type: 'audio/wav' });
-    const url = URL.createObjectURL(processedBlob);
-
-    const duration = Math.round(processedBuffer.duration);
-    const m = String(Math.floor(duration / 60)).padStart(2, '0');
-    const s = String(duration % 60).padStart(2, '0');
-
-    const rec = {
-      id: Date.now(),
-      name: 'Note ' + (state.recordings.length + 1),
-      duration: m + ':' + s,
-      url,
-      processed: document.getElementById('toggleCore').checked,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-
-    state.recordings.unshift(rec);
-    renderRecordings();
-    updateLimitBar();
-    showToast('Recording saved');
-  }
-
-  // ─── Playback ─────────────────────────────────────────────────────────────
+  // ─── Playback ─────────────────────────────────────────────
   function playRecording(id) {
     const rec = state.recordings.find(r => r.id === id);
     if (!rec) return;
@@ -1121,10 +1072,9 @@
     state.currentAudio = audio;
     state.playingId = id;
     renderRecordings();
-
     bars.forEach(b => b.classList.add('playing'));
 
-    audio.play();
+    audio.play().catch(() => showToast('Playback link expired — re-record to refresh'));
     audio.onended = () => {
       state.playingId = null;
       state.currentAudio = null;
@@ -1134,19 +1084,32 @@
     };
   }
 
-  function deleteRecording(id) {
-    state.recordings = state.recordings.filter(r => r.id !== id);
+  async function deleteRecording(id) {
+    const rec = state.recordings.find(r => r.id === id);
+    if (!rec) return;
+
+    // Delete from S3 via backend
+    try {
+      await fetch(`${API_URL}/delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: rec.s3key }),
+      });
+    } catch {}
+
     if (state.playingId === id && state.currentAudio) {
       state.currentAudio.pause();
       state.playingId = null;
       state.currentAudio = null;
     }
+
+    state.recordings = state.recordings.filter(r => r.id !== id);
     renderRecordings();
     updateLimitBar();
     showToast('Recording deleted');
   }
 
-  // ─── Render ───────────────────────────────────────────────────────────────
+  // ─── Render ───────────────────────────────────────────────
   function renderRecordings() {
     const list = document.getElementById('recordingsList');
     const badge = document.getElementById('countBadge');
@@ -1169,6 +1132,7 @@
             <span>${rec.duration}</span>
             <span>${rec.timestamp}</span>
             ${rec.processed ? '<span class="processed-tag">✦ corrected</span>' : ''}
+            ${rec.aiProcessed ? '<span class="ai-tag">⬡ AI</span>' : ''}
           </div>
         </div>
         <button class="delete-btn" onclick="deleteRecording(${rec.id})">✕</button>
@@ -1178,80 +1142,57 @@
 
   function updateLimitBar() {
     const limit = LIMITS[state.tier];
-    const used = state.recordings.length;
     const max = isFinite(limit.maxRecordings) ? limit.maxRecordings : null;
-
     const bar = document.getElementById('limitBar');
     if (!max) { bar.style.display = 'none'; return; }
     bar.style.display = 'block';
-
-    const pct = Math.min(100, (used / max) * 100);
-    document.getElementById('limitText').textContent = used + ' / ' + max;
+    const pct = Math.min(100, (state.recordings.length / max) * 100);
+    document.getElementById('limitText').textContent = state.recordings.length + ' / ' + max;
     const fill = document.getElementById('limitFill');
     fill.style.width = pct + '%';
     fill.className = 'limit-bar-fill' + (pct >= 80 ? ' warning' : '');
   }
 
-  // ─── Tier / Modal ─────────────────────────────────────────────────────────
-  function openModal() {
-    document.getElementById('upgradeModal').classList.add('open');
-    selectPlan('pro');
-  }
-
-  function closeModal() {
-    document.getElementById('upgradeModal').classList.remove('open');
-  }
-
-  function closeModalOutside(e) {
-    if (e.target === document.getElementById('upgradeModal')) closeModal();
-  }
+  // ─── Tier / Modal ─────────────────────────────────────────
+  function openModal() { document.getElementById('upgradeModal').classList.add('open'); selectPlan('pro'); }
+  function closeModal() { document.getElementById('upgradeModal').classList.remove('open'); }
+  function closeModalOutside(e) { if (e.target === document.getElementById('upgradeModal')) closeModal(); }
 
   function selectPlan(plan) {
     state.selectedPlan = plan;
-    ['free', 'pro', 'premium'].forEach(p => {
-      document.getElementById('plan' + p.charAt(0).toUpperCase() + p.slice(1))
-        .classList.remove('selected-plan');
+    ['free','pro','premium'].forEach(p => {
+      document.getElementById('plan' + p[0].toUpperCase() + p.slice(1)).classList.remove('selected-plan');
     });
-    document.getElementById('plan' + plan.charAt(0).toUpperCase() + plan.slice(1))
-      .classList.add('selected-plan');
-
+    document.getElementById('plan' + plan[0].toUpperCase() + plan.slice(1)).classList.add('selected-plan');
     const prices = { free: 'Free', pro: '$2.99/mo', premium: '$7.99/mo' };
-    const btn = document.getElementById('upgradeBtn');
-    btn.textContent = plan === 'free' ? 'Stay on Free' : 'Upgrade — ' + prices[plan];
+    document.getElementById('upgradeBtn').textContent =
+      plan === 'free' ? 'Stay on Free' : 'Upgrade — ' + prices[plan];
   }
 
   function handleUpgrade() {
     const plan = state.selectedPlan;
     state.tier = plan;
-
     const badge = document.getElementById('tierBadge');
     badge.className = 'tier-badge ' + plan;
     badge.textContent = plan.toUpperCase() + ' PLAN';
-
-    // unlock features
-    const noiseToggle = document.getElementById('toggleNoise');
-    const aiToggle = document.getElementById('toggleAI');
-    const transcribeToggle = document.getElementById('toggleTranscribe');
-
-    noiseToggle.disabled = plan === 'free';
-    aiToggle.disabled = plan !== 'premium';
-    transcribeToggle.disabled = plan !== 'premium';
-
+    document.getElementById('toggleNoise').disabled = plan === 'free';
+    document.getElementById('toggleAI').disabled = plan !== 'premium';
+    document.getElementById('toggleTranscribe').disabled = plan !== 'premium';
     closeModal();
     updateLimitBar();
-    showToast(plan === 'free' ? 'Staying on Free plan' : plan.charAt(0).toUpperCase() + plan.slice(1) + ' plan activated');
+    showToast(plan === 'free' ? 'Staying on Free' : plan[0].toUpperCase() + plan.slice(1) + ' activated');
   }
 
-  // ─── Toast ────────────────────────────────────────────────────────────────
+  // ─── Toast ────────────────────────────────────────────────
   function showToast(msg) {
     const toast = document.getElementById('toast');
     toast.textContent = msg;
     toast.classList.add('show');
-    clearTimeout(toast._timeout);
-    toast._timeout = setTimeout(() => toast.classList.remove('show'), 2500);
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.classList.remove('show'), 2800);
   }
 
-  // ─── Init ─────────────────────────────────────────────────────────────────
+  // ─── Init ─────────────────────────────────────────────────
   updateLimitBar();
   renderRecordings();
 </script>
